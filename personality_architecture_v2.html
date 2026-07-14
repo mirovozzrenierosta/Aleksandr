@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Архитектура Личности — Шаблон</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --N:#070D1F;--N2:#0E1A38;--N3:#152040;
+  --G:#C9A227;--G2:rgba(201,162,39,0.13);--G3:rgba(201,162,39,0.32);
+  --W:#fff;--CR:#F0E3C0;--GR:#7a8899;
+  --CIRCUIT:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj4KPGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDIwMSwxNjIsMzksMC4wNTUpIiBzdHJva2Utd2lkdGg9IjAuNSI+CjxwYXRoIGQ9Ik0wIDI1aDMwTTcwIDI1aDMwTTAgNzVoMzBNNzAgNzVoMzBNMjUgMHYzME0yNSA3MHYzME03NSAwdjMwTTc1IDcwdjMwIi8+CjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjIuNSIgZmlsbD0icmdiYSgyMDEsMTYyLDM5LDAuMDkpIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iMjUiIHI9IjIuNSIgZmlsbD0icmdiYSgyMDEsMTYyLDM5LDAuMDkpIi8+CjxjaXJjbGUgY3g9IjI1IiBjeT0iNzUiIHI9IjIuNSIgZmlsbD0icmdiYSgyMDEsMTYyLDM5LDAuMDkpIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNzUiIHI9IjIuNSIgZmlsbD0icmdiYSgyMDEsMTYyLDM5LDAuMDkpIi8+CjxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjEiIGZpbGw9InJnYmEoMjAxLDE2MiwzOSwwLjI1KSIvPgo8Y2lyY2xlIGN4PSI3NSIgY3k9IjI1IiByPSIxIiBmaWxsPSJyZ2JhKDIwMSwxNjIsMzksMC4yNSkiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSI3NSIgcj0iMSIgZmlsbD0icmdiYSgyMDEsMTYyLDM5LDAuMjUpIi8+CjxjaXJjbGUgY3g9Ijc1IiBjeT0iNzUiIHI9IjEiIGZpbGw9InJnYmEoMjAxLDE2MiwzOSwwLjI1KSIvPgo8L2c+Cjwvc3ZnPg==");
+}
+body{font-family:Arial,sans-serif;background:#030810;color:#fff;font-size:13px;height:100vh;overflow:hidden}
+
+/* ── LAYOUT ─────────────────────────────────────── */
+#app{display:flex;height:100vh;overflow:hidden}
+#sidebar{width:295px;background:var(--N2);border-right:1px solid rgba(201,162,39,0.22);display:flex;flex-direction:column;flex-shrink:0}
+#sidebar.hidden{width:0;overflow:hidden;border:none}
+.sb-head{padding:10px 14px;border-bottom:1px solid rgba(201,162,39,0.15);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.sb-title{color:var(--G);font-weight:bold;font-size:13px}
+.icon-btn{background:none;border:none;color:var(--GR);cursor:pointer;font-size:16px;padding:2px 5px}
+.tabs{display:flex;border-bottom:1px solid rgba(201,162,39,0.15);flex-shrink:0;overflow-x:auto}
+.tab{flex:1;padding:6px 3px;border:none;cursor:pointer;background:transparent;border-bottom:2px solid transparent;color:var(--GR);font-size:9px;font-family:Arial;letter-spacing:.3px;white-space:nowrap}
+.tab.on{background:var(--G2);border-bottom-color:var(--G);color:var(--G)}
+#form-body{flex:1;overflow-y:auto;padding:11px 13px}
+.sb-foot{padding:9px 13px;border-top:1px solid rgba(201,162,39,0.15);display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.fld{margin-bottom:9px}
+.fld label{display:block;color:var(--G);font-size:9px;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px}
+.fld input[type=text],.fld textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(201,162,39,0.28);border-radius:4px;color:#fff;font-family:Arial;font-size:11px;padding:5px 8px;outline:none}
+.fld textarea{resize:vertical}
+.fld input[type=range]{width:100%;accent-color:var(--G);cursor:pointer;margin-top:2px}
+.fsec{color:var(--G);font-size:9px;font-weight:bold;letter-spacing:.8px;margin:11px 0 6px;border-bottom:1px solid rgba(201,162,39,0.18);padding-bottom:3px}
+.abtn{padding:6px;background:var(--G2);border:1px solid rgba(201,162,39,0.45);border-radius:4px;color:var(--G);font-size:10px;cursor:pointer;font-family:Arial;text-align:center;width:100%}
+.abtn:hover{background:rgba(201,162,39,0.22)}
+
+/* ── MAIN ───────────────────────────────────────── */
+#main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{padding:7px 11px;background:var(--N2);border-bottom:1px solid rgba(201,162,39,0.18);display:flex;align-items:center;gap:7px;flex-shrink:0}
+#open-btn{padding:4px 10px;background:var(--G2);border:1px solid rgba(201,162,39,0.45);border-radius:4px;color:var(--G);font-size:10px;cursor:pointer;font-family:Arial;flex-shrink:0;display:none}
+.sctr{color:rgba(201,162,39,0.75);font-size:10px;flex-shrink:0}
+.stabs{display:flex;gap:3px;overflow-x:auto;flex:1}
+.stab{padding:3px 7px;border:none;border-radius:3px;background:rgba(255,255,255,0.05);color:var(--GR);cursor:pointer;font-size:8px;white-space:nowrap;flex-shrink:0;font-family:Arial}
+.stab.on{background:var(--G);color:var(--N);font-weight:bold}
+.navb{width:26px;height:26px;border-radius:4px;background:rgba(255,255,255,0.07);border:none;color:#fff;cursor:pointer;font-size:16px;flex-shrink:0;font-family:Arial}
+.navb:disabled{color:var(--GR);cursor:default}
+#slide-area{flex:1;overflow:auto;padding:18px;display:flex;align-items:flex-start;justify-content:center}
+.swrap{width:100%;max-width:900px}
+
+/* ── SLIDE FRAME ────────────────────────────────── */
+.sf{
+  width:100%;padding-top:56.25%;position:relative;border-radius:8px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(201,162,39,0.35), 0 4px 30px rgba(0,0,0,0.7);
+}
+.si{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse at 78% 12%, rgba(22,55,140,0.35) 0%, transparent 52%),
+    radial-gradient(ellipse at 15% 90%, rgba(10,28,85,0.25) 0%, transparent 48%),
+    var(--CIRCUIT),
+    var(--N);
+  padding:15px 22px 26px;
+  display:flex;flex-direction:column;font-family:Arial,sans-serif;
+}
+
+/* ── CARD TYPES ─────────────────────────────────── */
+/* Dark glass card */
+.dc{background:rgba(5,12,40,0.82);border:1px solid rgba(201,162,39,0.38);border-radius:7px;padding:10px 13px;box-shadow:0 0 18px rgba(0,0,0,0.5),inset 0 0 15px rgba(0,0,0,0.2)}
+/* Cream card (matching PDF callouts) */
+.cc{background:linear-gradient(135deg,#EFE2BC,#E2CFA0);border:1px solid rgba(201,162,39,0.65);border-radius:7px;padding:10px 13px;color:#2a1a00;box-shadow:0 2px 12px rgba(0,0,0,0.45)}
+/* Red warning card */
+.rc{background:rgba(90,15,10,0.3);border:1px solid rgba(200,60,30,0.5);border-radius:7px;padding:10px 13px}
+/* Slide header badge */
+.badge{color:rgba(201,162,39,0.7);font-size:9px;letter-spacing:1.3px;text-transform:uppercase;border-bottom:1px solid rgba(201,162,39,0.2);padding-bottom:5px;margin-bottom:9px}
+
+/* ── MODAL ──────────────────────────────────────── */
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:200;align-items:center;justify-content:center}
+#modal.show{display:flex}
+.mbox{background:var(--N2);border:1px solid rgba(201,162,39,0.4);border-radius:8px;padding:20px;width:520px;max-width:92vw}
+.mtitle{color:var(--G);font-weight:bold;font-size:14px;margin-bottom:11px}
+.mbox textarea{width:100%;height:185px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,162,39,0.3);border-radius:4px;color:#fff;font-family:monospace;font-size:11px;padding:8px;resize:vertical;outline:none;margin-bottom:6px}
+.mhint{color:var(--GR);font-size:10px;margin-bottom:10px}
+.macts{display:flex;gap:8px;justify-content:flex-end}
+.mok{padding:7px 16px;background:var(--G);border:none;border-radius:4px;color:var(--N);font-weight:bold;cursor:pointer;font-family:Arial}
+.mcancel{padding:7px 16px;background:transparent;border:1px solid rgba(201,162,39,0.4);border-radius:4px;color:var(--GR);cursor:pointer;font-family:Arial}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sb-head">
+      <span class="sb-title">Данные клиента</span>
+      <button class="icon-btn" onclick="toggleSB()">✕</button>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-t="profile" onclick="setTab('profile',this)">Профиль</button>
+      <button class="tab" data-t="paradox" onclick="setTab('paradox',this)">Парадокс</button>
+      <button class="tab" data-t="arch" onclick="setTab('arch',this)">Архетипы</button>
+      <button class="tab" data-t="comm" onclick="setTab('comm',this)">Коммун.</button>
+      <button class="tab" data-t="plan" onclick="setTab('plan',this)">90 Дней</button>
+    </div>
+    <div id="form-body"></div>
+    <div class="sb-foot">
+      <button class="abtn" onclick="doExport()">⬇ Экспорт JSON</button>
+      <button class="abtn" onclick="showModal()">⬆ Импорт JSON</button>
+      <button class="abtn" onclick="window.print()">🖨 Печать / PDF</button>
+    </div>
+  </aside>
+  <main id="main">
+    <div id="topbar">
+      <button id="open-btn" onclick="toggleSB()">✏ Данные</button>
+      <span class="sctr" id="sctr">1 / 15</span>
+      <div class="stabs" id="stabs"></div>
+      <button class="navb" id="pbtn" onclick="go(-1)">‹</button>
+      <button class="navb" id="nbtn" onclick="go(1)">›</button>
+    </div>
+    <div id="slide-area">
+      <div class="swrap"><div class="sf"><div class="si" id="si"></div></div></div>
+    </div>
+  </main>
+</div>
+<div id="modal">
+  <div class="mbox">
+    <div class="mtitle">Импорт данных клиента (JSON)</div>
+    <textarea id="jin" placeholder='{"name":"Имя клиента","r1n":"Гипертимный","r1v":100,...}'></textarea>
+    <div class="mhint">Вставьте JSON, сгенерированный скиллом portrait-to-slides.</div>
+    <div class="macts">
+      <button class="mcancel" onclick="hideModal()">Отмена</button>
+      <button class="mok" onclick="doImport()">Загрузить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const G='#C9A227',N='#070D1F',N2='#0E1A38',GR='#7a8899',CR='#EFE2BC';
+
+const DEF={
+  name:'Александр Иванищев',role:'Психолог-коуч',
+  r1n:'Гипертимный',r1v:100,r1d:'Энергия, не терпящая простоя',
+  r2n:'Параноидный',r2v:90,r2d:'Сверхидея и миссия',
+  r3n:'Жёлтый (Spiral Dynamics)',r3v:88,r3d:'Системное мышление',
+  rG:100,rP:90,rI:80,rTM:10,rEp:30,rSh:20,rEm:40,
+  profileSummary:'Двигатель на службе идеи. Гипертимный даёт топливо. Параноидный задаёт миссию. Жёлтый собирает это в единую систему. Движет не задача, а идея, объединяющая разрозненное.',
+  blueV:0,blueD:'Потребность в правилах и стабильности',
+  anxV:10,anxD:'Оценка рисков',
+  vulnText:'Внутреннего тормоза нет. Решения принимаются молниеносно, без долгих просчётов рисков.',
+  solText:'Дисциплина и оценка риска не придут изнутри. Их необходимо выстраивать снаружи — через партнёра, команду или жёсткие бизнес-системы.',
+  a1n:'Советник / Коуч',a1v:90,a1d:'Влияние через знание',
+  a2n:'Директор',a2v:90,a2d:'Управление структурой',
+  a3n:'Самозанятый',a3v:90,a3d:'Работа руками за результат',
+  cogProb:'Гибкость влияния превращается в перегрузку, когда все три роли активны в один день (утром — коуч, днём — операционка, вечером — стратегия).',
+  cogSol:'Жёсткое разделение «часов создания» и «часов управления» в расписании, чтобы снизить стоимость переключения.',
+  commProfile:'Параноидный 90% & Гипертимный 100%',
+  commResVec:'Аутентичное влияние и Прямой контакт.',
+  commResAct:'Пауза как осознанный выбор (3–5 секунд). Ясность, быстрые решения. Люди вдохновляются и доверяют.',
+  commAutoVec:'Системное давление и Нападение.',
+  commAutoAct:'Энергетический захват разговора. Давление на «правоту». Команда или партнёр закрывается или формально соглашается без реального включения.',
+  plan0:'Внедрение метрик на 5 направлений. Удовлетворение мотиватора «Достиженец» через фиксацию еженедельных микро-рекордов.',
+  plan30:'Выбор «Мировоззрения Роста» как единственной системы. Синтез ролей Советника, Директора и Самозанятого в единый вектор.',
+  plan60:'Наём операционного координатора (Синий уровень), чтобы закрыть слепую зону профиля и обеспечить контроль.',
+};
+let D={...DEF},SL=0,TAB='profile';
+
+const h=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const dc=(i,e='')=>`<div class="dc" style="${e}">${i}</div>`;
+const cc=(i,e='')=>`<div class="cc" style="${e}">${i}</div>`;
+const rc=(i,e='')=>`<div class="rc" style="${e}">${i}</div>`;
+const ftr=d=>`<div style="position:absolute;bottom:8px;right:14px;font-size:9px;color:rgba(201,162,39,0.45);letter-spacing:.5px">${h(d.name)}  ·  t.me/mirovozzrenierosta  ·  Мировоззрение Роста</div>`;
+const badge=(d,t)=>t?`<div class="badge">${h(t)}  ·  ${h(d.name)}</div>`:'';
+
+// ── PROGRESS BAR ─────────────────────────────────────────────────────
+function bar(label,val,desc){
+  const max=val>=95;
+  return `<div style="margin-bottom:12px">
+<div style="color:${G};font-weight:bold;font-size:13px;margin-bottom:2px">${h(label)}: ${val}%</div>
+${desc?`<div style="color:${GR};font-size:10px;margin-bottom:4px">${h(desc)}</div>`:''}
+<div style="background:rgba(255,255,255,0.07);height:16px;border-radius:3px;overflow:hidden">
+  <div style="background:linear-gradient(90deg,#9A7A1A,${G},#E8C84A);width:${val}%;height:100%;border-radius:3px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;box-shadow:0 0 8px rgba(201,162,39,0.55)">
+    <span style="font-size:9px;font-weight:bold;color:#1a1000">${max?'MAXIMUM':`${val}%`}</span>
+  </div>
+</div></div>`;
+}
+
+// ── RADAR ─────────────────────────────────────────────────────────────
+function radar(vals){
+  const cx=150,cy=155,R=108,n=7;
+  const lbl=['Г','П','И','Т-М','Эп','Ш','Эм'];
+  const ang=i=>(i*2*Math.PI/n)-Math.PI/2;
+  const px=(i,v)=>cx+(v/100)*R*Math.cos(ang(i));
+  const py=(i,v)=>cy+(v/100)*R*Math.sin(ang(i));
+  const grid=[20,40,60,80,100].map(v=>`<polygon points="${vals.map((_,i)=>`${px(i,v).toFixed(1)},${py(i,v).toFixed(1)}`).join(' ')}" fill="none" stroke="rgba(201,162,39,0.12)" stroke-width="0.7"/>`).join('');
+  const axes=vals.map((_,i)=>`<line x1="${cx}" y1="${cy}" x2="${px(i,100).toFixed(1)}" y2="${py(i,100).toFixed(1)}" stroke="rgba(201,162,39,0.2)" stroke-width="0.6"/>`).join('');
+  const poly=vals.map((v,i)=>`${px(i,v).toFixed(1)},${py(i,v).toFixed(1)}`).join(' ');
+  const dots=vals.map((v,i)=>`<circle cx="${px(i,v).toFixed(1)}" cy="${py(i,v).toFixed(1)}" r="3" fill="${G}" filter="url(#glow)"/>`).join('');
+  const lbls=lbl.map((l,i)=>`<text x="${(cx+1.28*R*Math.cos(ang(i))).toFixed(1)}" y="${(cy+1.28*R*Math.sin(ang(i))).toFixed(1)}" fill="${G}" text-anchor="middle" dominant-baseline="middle" font-size="11" font-family="Arial" font-weight="bold">${l}</text>`).join('');
+  return `<svg viewBox="0 0 300 310" style="width:100%;height:100%">
+<defs><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+${grid}${axes}
+<polygon points="${poly}" fill="rgba(201,162,39,0.22)" stroke="${G}" stroke-width="1.8" filter="url(#glow)"/>
+${dots}${lbls}</svg>`;
+}
+
+// ── GAUGE (speedometer) ───────────────────────────────────────────────
+function gauge(val,label,sub,color='#C9A227'){
+  // Semicircle gauge: arc from 200° to -20° (210° sweep)
+  const R=68,cx=90,cy=85,sw=14;
+  const a2r=d=>d*Math.PI/180;
+  // Start angle: 200° (left), end: -20° (right), full sweep: 220°
+  const startA=200, totalA=220;
+  const toXY=(deg,r)=>({
+    x:(cx+r*Math.cos(a2r(deg))).toFixed(2),
+    y:(cy+r*Math.sin(a2r(deg))).toFixed(2)
+  });
+  const endAng=startA-totalA; // -20
+  const p1=toXY(startA,R),p2=toXY(endAng,R);
+  const fill=Math.min(val,100)/100;
+  const fillAng=startA-totalA*fill;
+  const pf=toXY(fillAng,R);
+  const largeArc0=totalA>180?1:0;
+  const largeArcFill=totalA*fill>180?1:0;
+  // Needle
+  const needleAng=startA-totalA*fill;
+  const nx=(cx+58*Math.cos(a2r(needleAng))).toFixed(2);
+  const ny=(cy+58*Math.sin(a2r(needleAng))).toFixed(2);
+  // Tick marks
+  const ticks=Array.from({length:11},(_,i)=>{
+    const ta=startA-totalA*(i/10);
+    const ox=(cx+(R-sw/2-2)*Math.cos(a2r(ta))).toFixed(2);
+    const oy=(cy+(R-sw/2-2)*Math.sin(a2r(ta))).toFixed(2);
+    const ix=(cx+(R-sw/2-8)*Math.cos(a2r(ta))).toFixed(2);
+    const iy=(cy+(R-sw/2-8)*Math.sin(a2r(ta))).toFixed(2);
+    return `<line x1="${ox}" y1="${oy}" x2="${ix}" y2="${iy}" stroke="rgba(255,255,255,0.3)" stroke-width="${i%5===0?1.2:.5}"/>`;
+  }).join('');
+  return `<div style="text-align:center">
+<svg viewBox="0 0 180 105" style="width:100%">
+  <defs><filter id="gg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="gar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#445"/><stop offset="50%" stop-color="${color}"/><stop offset="100%" stop-color="#ff4"/></linearGradient>
+  </defs>
+  <!-- Background arc -->
+  <path d="M ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArc0} 0 ${p2.x} ${p2.y}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="${sw}" stroke-linecap="round"/>
+  <!-- Colored arc -->
+  <path d="M ${p1.x} ${p1.y} A ${R} ${R} 0 ${largeArcFill} 0 ${pf.x} ${pf.y}" fill="none" stroke="url(#gar)" stroke-width="${sw}" stroke-linecap="round" filter="url(#gg)"/>
+  ${ticks}
+  <!-- Needle -->
+  <line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="white" stroke-width="2" stroke-linecap="round" filter="url(#gg)"/>
+  <circle cx="${cx}" cy="${cy}" r="5" fill="${color}" filter="url(#gg)"/>
+  <circle cx="${cx}" cy="${cy}" r="2.5" fill="white"/>
+  <!-- Value -->
+  <text x="${cx}" y="${cy+18}" fill="${color}" text-anchor="middle" font-size="13" font-family="Arial" font-weight="bold">${val}%</text>
+</svg>
+<div style="color:${color};font-weight:bold;font-size:11px;margin-top:-4px">${h(label)}</div>
+${sub?`<div style="color:${GR};font-size:9px;margin-top:2px">${h(sub)}</div>`:''}
+</div>`;
+}
+
+// ── SLIDES ───────────────────────────────────────────────────────────
+function s1(d){return ftr(d)+`
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+  <div style="font-size:9px;color:rgba(201,162,39,0.65);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px">Архитектура Личности  ·  Мировоззрение Роста</div>
+  <div style="font-size:30px;font-weight:bold;color:#fff;line-height:1.15;text-shadow:0 0 30px rgba(201,162,39,0.3);margin-bottom:4px">ПОНЯТЬ СЕБЯ –</div>
+  <div style="font-size:30px;font-weight:bold;color:#fff;line-height:1.15;text-shadow:0 0 30px rgba(201,162,39,0.3);margin-bottom:18px">ИЗМЕНИТЬ ВСЁ</div>
+  <div style="width:55px;height:2px;background:linear-gradient(90deg,transparent,${G},transparent);margin-bottom:16px;box-shadow:0 0 10px ${G}"></div>
+  ${cc(`<div style="font-size:13px;color:#2a1a00;text-align:center">Архитектура Личности и Мировоззрение Роста.<br>Открытый код ультимативного кейса.</div>`,'margin-bottom:16px')}
+  <div style="border:1px solid rgba(201,162,39,0.5);border-radius:28px;padding:7px 20px;font-size:12px;color:${G};box-shadow:0 0 12px rgba(201,162,39,0.2)">${h(d.name)}  |  ${h(d.role)}</div>
+  <div style="margin-top:10px;font-size:9px;color:rgba(201,162,39,0.55);letter-spacing:1px">t.me/mirovozzrenierosta</div>
+</div>`;}
+
+function s2(d){
+  const bx=[['⚙','Железо (Hardware)','Базовые параметры нервной системы (Радикалы).'],['💻','ОС (Operating System)','Эмоциональный автопилот и ценностные уровни (Спиральная динамика).'],['📱','Софт (Software)','Архетипы, мотивация и каналы восприятия (VAKD).']];
+  return badge(d,'Структура личности')+ftr(d)+`
+<div style="color:#fff;font-size:17px;font-weight:bold;margin-bottom:9px;text-shadow:0 0 20px rgba(201,162,39,0.25)">Человек устроен как сложная вычислительная система</div>
+${cc(`<div style="font-size:11px;color:#2a1a00;text-align:center;font-style:italic;line-height:1.6">«Блок — это не слабость. Это сигнал: что-то внутри настроено не так. Только собрав правильную комбинацию, человек становится расслабленным и работает в полную силу.»</div>`,'margin-bottom:9px')}
+<div style="display:flex;gap:9px;flex:1">
+${bx.map(([ic,t,tx])=>`<div style="flex:1;background:linear-gradient(135deg,#EFE2BC,#E2CFA0);border:1px solid rgba(201,162,39,0.6);border-radius:8px;padding:11px 12px;display:flex;flex-direction:column;gap:6px;box-shadow:0 2px 10px rgba(0,0,0,0.4)"><div style="font-size:20px">${ic}</div><div style="color:#1a1000;font-weight:bold;font-size:12px">${t}</div><div style="color:#5a4010;font-size:10px;line-height:1.4">${tx}</div></div>`).join('')}
+</div>
+<div style="margin-top:8px;padding:7px 12px;background:rgba(5,12,40,0.85);border:1px solid rgba(200,60,30,0.4);border-radius:5px;text-align:center;color:${CR};font-size:10px;box-shadow:inset 0 0 15px rgba(0,0,0,0.3)">
+  Проблема не в нехватке силы воли. Проблема в попытке запустить sofт на несовместимом железе.</div>`;}
+
+function s3(d){
+  const m=[['Архетип','Внешний интерфейс и роли.'],['Мотивация','Топливо для действий.'],['VAKD','Каналы восприятия и обработки данных.'],['Спиральная динамика','Ценности и смыслы.'],['7 Радикалов (ЦНС)','Двигатель и энергия.']];
+  return badge(d,'Фреймворк')+ftr(d)+`
+<div style="color:#fff;font-size:17px;font-weight:bold;margin-bottom:11px">Фреймворк «5 Матриц»: Стек технологий личности</div>
+<div style="display:flex;flex:1;gap:14px">
+  <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+    ${m.map(([n,t],i)=>`<div style="display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:6px;background:linear-gradient(135deg,rgba(201,162,39,${0.08+i*0.04}),rgba(201,162,39,${0.04+i*0.02}));border:1px solid rgba(201,162,39,${0.2+i*0.08});box-shadow:0 0 8px rgba(0,0,0,0.3)"><div style="width:8px;height:8px;border-radius:50%;background:${G};box-shadow:0 0 6px ${G};flex-shrink:0"></div><div><div style="color:${G};font-weight:bold;font-size:12px">${n}</div><div style="color:${GR};font-size:10px">${t}</div></div></div>`).join('')}
+  </div>
+  <div style="width:125px;display:flex;align-items:center;justify-content:center">
+    <div style="position:relative;width:110px;height:115px">
+      ${[4,3,2,1,0].map(i=>`<div style="position:absolute;left:50%;bottom:${i*21}px;transform:translateX(-50%);width:${60+i*11}px;height:14px;background:linear-gradient(90deg,rgba(201,162,39,${0.07+i*0.07}),rgba(201,162,39,${0.04+i*0.05}));border:1px solid rgba(201,162,39,${0.18+i*0.1});border-radius:3px;box-shadow:0 0 6px rgba(201,162,39,${0.1+i*0.08})"></div>`).join('')}
+    </div>
+  </div>
+</div>
+${cc(`<div style="font-size:10px;color:#2a1a00;line-height:1.5">Ценность не в отдельных показателях, а в ядре, где они пересекаются. Мы используем этот фреймворк, чтобы составить <strong>точный инженерный чертёж вашей психики</strong>.</div>`,'margin-top:8px')}`;}
+
+function s4(d){
+  return badge(d,'Профиль клиента')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:2px">Открытый код: Профиль ${h(d.name)}</div>
+<div style="color:${GR};font-size:9px;margin-bottom:9px">Использование конфигурации как ультимативного доказательства работы системы.</div>
+<div style="display:flex;flex:1;gap:14px">
+  <div style="flex:0 0 44%;display:flex;flex-direction:column;justify-content:center">
+    ${bar(d.r1n,d.r1v,`Индикатор на максимуме: ${d.r1d}`)}
+    ${bar(d.r2n,d.r2v,`Индикатор на максимуме: ${d.r2d}`)}
+    ${bar(d.r3n,d.r3v,`Спиральная динамика: ${d.r3d}`)}
+  </div>
+  <div style="flex:1;min-width:0">${radar([d.rG,d.rP,d.rI,d.rTM,d.rEp,d.rSh,d.rEm])}</div>
+</div>
+${cc(`<div style="font-size:10px;color:#2a1a00;text-align:center;line-height:1.5"><strong>${h(d.r1n)} даёт топливо. ${h(d.r2n)} задаёт миссию.</strong> ${h(d.profileSummary)}</div>`,'margin-top:6px')}`;}
+
+function s5(d){
+  const blueColor='#4488CC';
+  return badge(d,'Парадокс системы')+ftr(d)+`
+<div style="color:#fff;font-size:16px;font-weight:bold;margin-bottom:9px">Парадокс системы: Максимальный газ, нулевые тормоза</div>
+<div style="display:flex;flex:1;gap:12px">
+  <div style="flex:0 0 48%;display:flex;flex-direction:row;gap:10px">
+    <div style="flex:1">${gauge(100,'Скорость принятия решений','','#C9A227')}</div>
+    <div style="flex:1">${gauge(d.blueV,'Внутренние тормоза','','#4488CC')}</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+    ${dc(`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><div style="width:10px;height:10px;border-radius:50%;background:${blueColor};box-shadow:0 0 8px ${blueColor}"></div><div style="color:${blueColor};font-weight:bold;font-size:12px">Синий (Spiral Dynamics): ${d.blueV}%</div></div><div style="color:${GR};font-size:10px">${h(d.blueD)}</div>  <div style="margin-top:7px;display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:rgba(201,162,39,0.6)"></div><div style="color:${CR};font-weight:bold;font-size:12px">Тревожно-мнительный: ${d.anxV}%</div></div><div style="color:${GR};font-size:10px;margin-top:2px">${h(d.anxD)}</div>`)}
+    ${rc(`<div style="color:${G};font-weight:bold;font-size:11px;margin-bottom:5px">Уязвимость — обратная сторона силы.</div><div style="color:#DDBBAA;font-size:10px;line-height:1.5">${h(d.vulnText)}</div>`,'flex:1')}
+    ${cc(`<div style="color:#2a1000;font-weight:bold;font-size:10px;margin-bottom:4px">✅ Решение: Выстраивание внешнего контура</div><div style="color:#4a2800;font-size:10px;line-height:1.5">${h(d.solText)}</div>`,'flex:1')}
+  </div>
+</div>`;}
+
+function s6(d){
+  const arcs=[[d.a1n,d.a1v,d.a1d,'#3355BB'],[d.a2n,d.a2v,d.a2d,'#2277AA'],[d.a3n,d.a3v,d.a3d,'#3399CC']];
+  const pos=[[20,18],[52,18],[36,50]];
+  return badge(d,'Архетипы')+ftr(d)+`
+<div style="color:#fff;font-size:16px;font-weight:bold;margin-bottom:8px">Когнитивная нагрузка: Трение множественных интерфейсов</div>
+<div style="display:flex;flex:1;gap:13px">
+  <div style="flex:0 0 46%;position:relative">
+    <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+      <defs><filter id="vglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <!-- Three circles -->
+      <circle cx="68" cy="72" r="55" fill="rgba(51,85,187,0.18)" stroke="#3355BB" stroke-width="1.5" opacity="0.9"/>
+      <circle cx="132" cy="72" r="55" fill="rgba(34,119,170,0.18)" stroke="#2277AA" stroke-width="1.5" opacity="0.9"/>
+      <circle cx="100" cy="118" r="55" fill="rgba(51,153,204,0.18)" stroke="#3399CC" stroke-width="1.5" opacity="0.9"/>
+      <!-- Glowing center -->
+      <circle cx="100" cy="95" r="22" fill="rgba(200,50,30,0.55)" filter="url(#vglow)"/>
+      <text x="100" y="93" fill="white" text-anchor="middle" font-size="8" font-family="Arial" font-weight="bold">Когнитивное</text>
+      <text x="100" y="103" fill="white" text-anchor="middle" font-size="8" font-family="Arial" font-weight="bold">трение</text>
+      <!-- Labels -->
+      <text x="35" y="30" fill="#88AAEE" text-anchor="middle" font-size="8.5" font-family="Arial" font-weight="bold">${h(d.a1n)}</text>
+      <text x="35" y="40" fill="${G}" text-anchor="middle" font-size="8" font-family="Arial">(${d.a1v}%)</text>
+      <text x="165" y="30" fill="#88AAEE" text-anchor="middle" font-size="8.5" font-family="Arial" font-weight="bold">${h(d.a2n)}</text>
+      <text x="165" y="40" fill="${G}" text-anchor="middle" font-size="8" font-family="Arial">(${d.a2v}%)</text>
+      <text x="100" y="162" fill="#88AAEE" text-anchor="middle" font-size="8.5" font-family="Arial" font-weight="bold">${h(d.a3n)}</text>
+      <text x="100" y="152" fill="${G}" text-anchor="middle" font-size="8" font-family="Arial">(${d.a3v}%)</text>
+    </svg>
+    <div style="position:absolute;bottom:4px;left:4px;right:4px;text-align:center">
+      <span style="color:${GR};font-size:8px">${arcs.map(a=>h(a[2])).join('  ·  ')}</span>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+    ${rc(`<div style="color:${G};font-weight:bold;font-size:11px;margin-bottom:5px">⚡ Проблема</div><div style="color:#DDBBAA;font-size:10px;line-height:1.5">${h(d.cogProb)}</div>`,'flex:1')}
+    ${cc(`<div style="color:#2a1000;font-weight:bold;font-size:10px;margin-bottom:4px">⚙ Аппаратное решение</div><div style="color:#4a2800;font-size:10px;line-height:1.5">${h(d.cogSol)}</div>`,'flex:1')}
+  </div>
+</div>`;}
+
+function s7(d){
+  const st=[['Благодарность',G,1.0],['Поток',G,0.9],['Уверенность','#88AA44',0.78],['Любопытство','#88AA44',0.66],['Страх','#BB4444',0.52],['Стыд','#AA3333',0.46],['Злость','#993333',0.42],['Апатия','#883333',0.4],['Суета','#772222',0.38],['Кома','#551111',0.36]];
+  return badge(d,'Воронка состояний')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:8px">Операционная система: Воронка Эмоциональных Состояний</div>
+<div style="display:flex;flex:1;gap:13px">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="color:rgba(201,162,39,0.7);font-size:8px;letter-spacing:1px;margin-bottom:3px">↑ РЕСУРСНАЯ ЗОНА (Осознанность)</div>
+    ${st.slice(0,4).map((s,i)=>`<div style="width:${100-i*8}%;height:14px;margin-bottom:2px;background:${s[1]}2A;border:1px solid ${s[1]}75;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;box-shadow:inset 0 0 6px rgba(0,0,0,0.3)">${s[0]}</div>`).join('')}
+    <div style="color:${G};font-size:8px;letter-spacing:2px;margin:4px 0;text-shadow:0 0 8px ${G}">— ГРАНИЦА ПРИНЯТИЯ —</div>
+    ${st.slice(4).map((s,i)=>`<div style="width:${38+i*10}%;height:14px;margin-bottom:2px;background:${s[1]}22;border:1px solid ${s[1]}55;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;color:#ddd">${s[0]}</div>`).join('')}
+    <div style="color:rgba(150,40,40,0.7);font-size:8px;letter-spacing:1px;margin-top:3px">↓ РЕАКТИВНАЯ ЗОНА (Автопилот)</div>
+  </div>
+  <div style="width:175px;display:flex;flex-direction:column;gap:7px">
+    ${cc(`<div style="color:#1a0a00;font-weight:bold;font-size:11px;margin-bottom:6px">Ключевой концепт</div><div style="color:#3a2000;font-size:10px;line-height:1.5">Состояние — это не просто «настроение». Это <strong>фильтр, через который принимаются решения</strong>.<br><br>Большинство живут в реактивной зоне, думая, что они контролируют ситуацию.</div>`)}
+  </div>
+</div>`;}
+
+function s8(d){
+  const rows=[['Страх / Тревога','Решает задачу Безопасности','Иллюзия: «Я трезво оцениваю риски»'],['Стыд / Вина','Решает задачу Справедливости','Иллюзия: «Я восстанавливаю порядок»'],['Суета','Решает задачу Движения (без плана)','Иллюзия: «Я максимально продуктивен и эффективен»'],['Кома (Нейтральность)','Решает задачу Защиты остатков энергии','Иллюзия: «Я просто отдыхаю и всё стабильно»']];
+  return badge(d,'Ловушка задач')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:8px">Скрытая ловушка задач: Иллюзия эффективности</div>
+<div style="flex:1">
+  <div style="display:flex;gap:3px;margin-bottom:4px">${['Состояние (Автопилот)','Какую задачу решает мозг','В чём системная ловушка (Иллюзия)'].map(c=>`<div style="flex:1;padding:5px 9px;background:linear-gradient(90deg,rgba(201,162,39,0.22),rgba(201,162,39,0.15));border-radius:3px;color:${G};font-weight:bold;font-size:9px">${c}</div>`).join('')}</div>
+  ${rows.map((row,i)=>`<div style="display:flex;gap:3px;margin-bottom:3px">${row.map((c,j)=>`<div style="flex:1;padding:6px 9px;background:${i%2===0?'rgba(14,26,56,0.7)':'rgba(7,13,31,0.5)'};border:1px solid rgba(201,162,39,${j===2?0.2:0.08});border-radius:3px;color:${j===2?`rgba(201,162,39,0.9)`:GR};font-size:9px">${c}</div>`).join('')}</div>`).join('')}
+</div>
+${cc(`<div style="font-size:10px;color:#2a1a00;text-align:center;line-height:1.5;margin-top:8px">Человек не хочет выходить из автопилота, потому что <strong>искренне верит, что делает правильные вещи</strong>. Проблема в том, что эти действия не ведут к росту, они лишь <strong>обслуживают страх</strong>.</div>`,'margin-top:8px')}`;}
+
+function s9(d){
+  const st=[['Что ты хочешь сделать?','Определяем текущую задачу'],['Что это тебе даст?','Честный ответ о реальном результате'],['Это то, что ты на самом деле хочешь?','Пробивание границы иллюзии']];
+  return badge(d,'Протокол перехода')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:3px">Протокол Перехода: Взлом Матрицы Автопилота</div>
+<div style="color:${GR};font-size:10px;margin-bottom:13px">Выход из ловушки начинается не с усилия, а с обнаружения факта, что текущая задача бесполезна.</div>
+<div style="display:flex;flex:1;align-items:center;gap:7px">
+  ${st.map((s,i)=>`
+    <div style="flex:1;background:linear-gradient(135deg,#EFE2BC,#E2CFA0);border:1px solid rgba(201,162,39,0.6);border-radius:8px;padding:12px 11px;text-align:center;display:flex;flex-direction:column;align-items:center;box-shadow:0 2px 12px rgba(0,0,0,0.4)">
+      <div style="width:24px;height:24px;border-radius:50%;border:2px solid ${G};display:flex;align-items:center;justify-content:center;color:${G};font-weight:bold;font-size:11px;margin-bottom:7px;background:rgba(201,162,39,0.1)">${i+1}</div>
+      <div style="color:#1a1000;font-size:11px;font-weight:bold;margin-bottom:4px">${s[0]}</div>
+      <div style="color:#5a3a10;font-size:9px">${s[1]}</div>
+    </div>
+    ${i<2?`<div style="color:${G};font-size:20px;text-shadow:0 0 8px ${G}">→</div>`:''}`).join('')}
+  <div style="color:${G};font-size:20px;text-shadow:0 0 8px ${G}">→</div>
+  <div style="flex:0 0 26%;border:2px solid ${G};border-radius:8px;padding:12px 11px;background:rgba(201,162,39,0.08);text-align:center;box-shadow:0 0 15px rgba(201,162,39,0.2)">
+    <div style="color:${G};font-weight:bold;font-size:11px;margin-bottom:5px;text-shadow:0 0 8px ${G}">Переформулировка. Отказ от реактивной задачи в пользу ресурсной.</div>
+    <div style="color:${GR};font-size:9px">Не «сделать больше», а «выбрать одну якорную ось на 90 дней».</div>
+  </div>
+</div>`;}
+
+function s10(d){return badge(d,'Коммуникация')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:2px">Сетевые Протоколы: Радикалы в Коммуникации</div>
+<div style="color:${GR};font-size:10px;margin-bottom:10px">(Профиль: ${h(d.commProfile)})</div>
+<div style="display:flex;flex:1;gap:11px">
+  ${cc(`<div style="color:#1a1000;font-weight:bold;font-size:13px;margin-bottom:9px">В ресурсе (Осознанность)</div><div style="margin-bottom:6px"><span style="color:#5a3000;font-weight:bold;font-size:10px">• Вектор: </span><span style="color:#3a2000;font-size:10px">${h(d.commResVec)}</span></div><div><span style="color:#5a3000;font-weight:bold;font-size:10px">• Действие: </span><span style="color:#3a2000;font-size:10px;line-height:1.5">${h(d.commResAct)}</span></div>`,'flex:1')}
+  ${dc(`<div style="color:#DD8888;font-weight:bold;font-size:13px;margin-bottom:9px">При триггере (Автопилот)</div><div style="margin-bottom:6px"><span style="color:${G};font-weight:bold;font-size:10px">• Вектор: </span><span style="color:${GR};font-size:10px">${h(d.commAutoVec)}</span></div><div><span style="color:${G};font-weight:bold;font-size:10px">• Действие: </span><span style="color:${GR};font-size:10px;line-height:1.5">${h(d.commAutoAct)}</span></div>`,'flex:1;border-color:rgba(200,80,80,0.45)')}
+</div>
+${cc(`<div style="font-size:10px;color:#2a1a00;text-align:center;margin-top:8px">Ваш профиль задаёт базовые коды, но ваше состояние определяет, станет ли этот код <strong>оружием созидания или разрушения</strong>.</div>`,'margin-top:8px')}`;}
+
+function s11(d){return badge(d,'Экосистема')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:3px">Экосистема: Концепция Внешнего Дополнения</div>
+<div style="color:${GR};font-size:10px;margin-bottom:9px">Почему сильному профилю нельзя работать с копией себя.</div>
+<div style="display:flex;flex:1;gap:11px;align-items:stretch">
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+    ${rc(`<div style="color:#DD8866;font-weight:bold;font-size:10px;margin-bottom:4px">⚠ Ошибка:</div><div style="color:#DDBBAA;font-size:10px">Искать того, кто генерирует столько же идей.</div>`,'flex:1')}
+    ${dc(`<div style="text-align:center"><div style="color:${G};font-weight:bold;font-size:13px;text-shadow:0 0 10px ${G}">${h(d.name)}</div><div style="color:${GR};font-size:9px;margin-top:3px">(Speed, Idea, Chaos)</div></div>`)}
+  </div>
+  <div style="flex:0 0 50px;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <svg viewBox="0 0 40 80" style="width:40px;height:80px">
+      <defs><filter id="eg"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+      <path d="M5 40 Q20 20 35 40 Q20 60 5 40Z" fill="${G}" opacity="0.7" filter="url(#eg)"/>
+      <path d="M5 40 L35 40" stroke="${G}" stroke-width="1" opacity="0.5"/>
+    </svg>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+    ${cc(`<div style="color:#1a1000;font-weight:bold;font-size:10px;margin-bottom:5px">✅ Правильное решение:</div><div style="color:#3a2000;font-size:10px;line-height:1.5">Искать того, кто берёт паузу там, где вы уже разогнались — чтобы убедиться, что направление верное и регламенты соблюдены.</div>`,'flex:1')}
+    ${dc(`<div style="text-align:center"><div style="color:#88AADD;font-weight:bold;font-size:13px">Ideal Partner</div><div style="color:${GR};font-size:9px;margin-top:3px">(Structure, Order, Brakes)</div></div>`)}
+  </div>
+</div>
+${cc(`<div style="font-size:10px;color:#2a1a00;text-align:center;margin-top:8px"><strong>Партнёр — это не клон. Это внешний контур безопасности.</strong></div>`,'margin-top:8px')}`;}
+
+function s12(d){
+  const cols=[{t:'Романтика',c:'#7A9A3A',f:['Жёлтый/Зелёный уровень','Гипертимный (от 50%)'],b:['Причастник (60%+) для удержания близости','Тревожно-мнительный для удержания быта']},{t:'Бизнес',c:'#B8921A',f:['Уважение к Параноидной миссии','Общий темп'],b:['Синий (50%+) для регламентов','Эпилептоидный для оценки рисков']},{t:'Команда',c:'#3A7AAA',f:['Общий канал коммуникации','(Кинестетика / Дигитал)'],b:['Глубокий Специалист (60%+)']}];
+  return badge(d,'Матрица партнёрства')+ftr(d)+`
+<div style="color:#fff;font-size:14px;font-weight:bold;margin-bottom:9px">Матрица Идеального Партнёрства: Дашборд Совместимости</div>
+<div style="display:flex;flex:1;gap:9px">
+${cols.map(col=>`<div style="flex:1;border:1px solid ${col.c}70;border-radius:9px;overflow:hidden;box-shadow:0 0 12px rgba(0,0,0,0.4)">
+  <div style="background:${col.c}30;padding:7px 10px;border-bottom:1px solid ${col.c}45;color:#fff;font-weight:bold;font-size:12px;text-align:center">${col.t}</div>
+  <div style="padding:8px 10px;background:rgba(5,12,40,0.7)">
+    <div style="color:${G};font-size:9px;font-weight:bold;margin-bottom:5px;letter-spacing:.5px">ФУНДАМЕНТ (СХОДСТВА)</div>
+    ${col.f.map(f=>`<div style="background:${col.c}18;border:1px solid ${col.c}35;border-radius:4px;padding:4px 7px;margin-bottom:3px;color:${CR};font-size:9px">${f}</div>`).join('')}
+    <div style="color:${G};font-size:9px;font-weight:bold;margin:7px 0 5px;letter-spacing:.5px">БАЛАНСИРЫ (ДОПОЛНЕНИЯ)</div>
+    ${col.b.map(b=>`<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:4px 7px;margin-bottom:3px;color:${GR};font-size:9px">${b}</div>`).join('')}
+  </div>
+</div>`).join('')}
+</div>`;}
+
+function s13(d){
+  const flags=[{t:'Разгон без страховки',conf:'Оба партнёра с нулевым Синим уровнем и низким уровнем тревожности.',res:'Бизнес или быт разгоняются без оценки рисков; договорённости не выстраивает никто.'},{t:'Две «Единственно Верные» Идеи',conf:'Бизнес-партнёр с собственной высокой Параноидной миссией (80%+), конкурирующей с вашей.',res:'Постоянный скрытый конфликт управления.'},{t:'Параллельное Движение',conf:'В романтике оба с нулевым мотиватором «Причастник».',res:'Никто не вкладывается в саму связь. Движение рядом, но не вместе.'}];
+  return badge(d,'Красные флаги')+ftr(d)+`
+<div style="color:#DD5555;font-size:16px;font-weight:bold;margin-bottom:10px;text-shadow:0 0 15px rgba(200,50,50,0.5)">Системный Крах: Красные Флаги в Сборке</div>
+<div style="display:flex;flex:1;gap:9px;flex-wrap:wrap">
+${flags.map(f=>`<div style="flex:1 1 44%;background:rgba(90,10,10,0.4);border:1px solid rgba(200,55,35,0.55);border-radius:8px;padding:11px 12px;box-shadow:0 0 15px rgba(150,30,20,0.3),inset 0 0 15px rgba(0,0,0,0.3)">
+  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="font-size:16px">⚠</span><span style="color:#DD8855;font-weight:bold;font-size:11px">${f.t}</span></div>
+  <div style="margin-bottom:5px"><span style="color:${G};font-size:9px;font-weight:bold">Конфигурация: </span><span style="color:#DDBBAA;font-size:9px">${f.conf}</span></div>
+  <div><span style="color:${G};font-size:9px;font-weight:bold">Итог: </span><span style="color:#DDBBAA;font-size:9px">${f.res}</span></div>
+</div>`).join('')}
+</div>`;}
+
+function s14(d){
+  const st=[{t:'Немедленно',sub:'Score Card',txt:d.plan0,c:'#44AA66'},{t:'30 Дней',sub:'Якорная Ось',txt:d.plan30,c:G},{t:'60 Дней',sub:'Внешний Тормоз',txt:d.plan60,c:'#4488CC'}];
+  return badge(d,'90-дневный план')+ftr(d)+`
+<div style="color:#fff;font-size:15px;font-weight:bold;margin-bottom:3px">Мостовой Путь: От Расфокуса к Архитектуре (Кейс)</div>
+<div style="color:${GR};font-size:10px;margin-bottom:14px">Доказательство работоспособности системы на практике. План ${h(d.name)} на 90 дней.</div>
+<div style="position:relative;flex:1;display:flex;align-items:center">
+  <div style="position:absolute;top:50%;left:0;right:0;height:2px;background:linear-gradient(90deg,rgba(201,162,39,0.3),${G},rgba(201,162,39,0.3));transform:translateY(-50%);box-shadow:0 0 8px rgba(201,162,39,0.4)"></div>
+  <div style="display:flex;width:100%;justify-content:space-between;position:relative;z-index:1">
+    ${st.map((s,i)=>`<div style="width:31%;display:flex;flex-direction:column;align-items:${i===0?'flex-start':i===2?'flex-end':'center'}">
+      ${cc(`<div style="color:#1a1000;font-weight:bold;font-size:10px;margin-bottom:5px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:${s.c};display:inline-block;box-shadow:0 0 6px ${s.c}"></span>${s.t} (${s.sub}):</div><div style="color:#3a2000;font-size:9px;line-height:1.5">${h(s.txt)}</div>`,'margin-bottom:9px')}
+      <div style="width:14px;height:14px;border-radius:50%;border:3px solid ${s.c};background:${N};box-shadow:0 0 8px ${s.c}"></div>
+    </div>`).join('')}
+  </div>
+</div>`;}
+
+function s15(d){return ftr(d)+`
+<div style="color:#fff;font-size:16px;font-weight:bold;margin-bottom:14px;text-align:center;text-shadow:0 0 20px rgba(201,162,39,0.3)">Ваша Конфигурация: Не меняйте себя. Настройте систему.</div>
+<div style="display:flex;flex:1;gap:15px">
+  ${cc(`<div style="color:#1a1000;font-weight:bold;font-size:12px;margin-bottom:8px">Александр — Архитектор платформы. А кто вы?</div><div style="color:#3a2000;font-size:10px;line-height:1.65">Ваш психологический код уникален. Попытка жить по чужим шаблонам — это попытка запустить современный sofт на несовместимом железе.<br><br>Узнайте свою конфигурацию, поймите свои триггеры и соберите систему, которая будет работать на вас.</div>`,'flex:1')}
+  <div style="flex:1;display:flex;align-items:center;justify-content:center">
+    <div style="border:1px solid rgba(201,162,39,0.55);border-radius:10px;padding:16px 20px;text-align:center;box-shadow:0 0 20px rgba(201,162,39,0.15),0 4px 20px rgba(0,0,0,0.5);background:rgba(5,12,40,0.7)">
+      <div style="color:${CR};font-size:11px;margin-bottom:12px">Запись на разбор вашей архитектуры.</div>
+      <div style="color:${G};font-size:12px;font-weight:bold;margin-bottom:5px;text-shadow:0 0 8px ${G}">Telegram: t.me/mirovozzrenierosta</div>
+      <div style="color:${GR};font-size:10px">Телефон / WhatsApp: +7 928 140 06 23</div>
+      <div style="margin-top:12px;width:60px;height:60px;background:rgba(201,162,39,0.1);border:1px solid rgba(201,162,39,0.3);border-radius:6px;display:flex;align-items:center;justify-content:center;margin:12px auto 0;color:${G};font-size:8px">QR-код</div>
+    </div>
+  </div>
+</div>`;}
+
+const SLIDES=[s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,s11,s12,s13,s14,s15];
+const NAMES=['1.Обложка','2.Система','3.Матрицы','4.Профиль','5.Парадокс','6.Архетипы','7.Воронка','8.Ловушка','9.Протокол','10.Коммун.','11.Партнёр','12.Матрица','13.Флаги','14.90Дней','15.Итог'];
+
+// ── FORM ──────────────────────────────────────────────────────────────
+function fld(label,key,type='text'){
+  const val=D[key]!==undefined?D[key]:'';
+  if(type==='range') return `<div class="fld"><label>${label}: <span id="rv_${key}">${val}</span>%</label><input type="range" min="0" max="100" value="${val}" oninput="upN('${key}',this.value)"></div>`;
+  if(type==='ta') return `<div class="fld"><label>${label}</label><textarea rows="3" oninput="upS('${key}',this.value)">${h(String(val))}</textarea></div>`;
+  return `<div class="fld"><label>${label}</label><input type="text" value="${h(String(val))}" oninput="upS('${key}',this.value)"></div>`;
+}
+function sec(l){return `<div class="fsec">${l}</div>`;}
+function formHTML(){
+  if(TAB==='profile') return fld('Имя клиента','name')+fld('Роль','role')+sec('ТОП-3 ПОКАЗАТЕЛЯ')+fld('Показатель 1 — название','r1n')+fld('Значение 1 (%)','r1v','range')+fld('Описание 1','r1d')+fld('Показатель 2 — название','r2n')+fld('Значение 2 (%)','r2v','range')+fld('Описание 2','r2d')+fld('Показатель 3 — название','r3n')+fld('Значение 3 (%)','r3v','range')+fld('Описание 3','r3d')+sec('РАДАР (7 РАДИКАЛОВ)')+fld('Гипертимный','rG','range')+fld('Параноидный','rP','range')+fld('Истероидный','rI','range')+fld('Тревожно-мнительный','rTM','range')+fld('Эпилептоидный','rEp','range')+fld('Шизоидный','rSh','range')+fld('Эмотивный','rEm','range')+fld('Итоговый вывод профиля','profileSummary','ta');
+  if(TAB==='paradox') return fld('Синий уровень (%)','blueV','range')+fld('Описание Синего','blueD')+fld('Тревожно-мнительный (%)','anxV','range')+fld('Описание Тревожного','anxD')+fld('Текст: уязвимость','vulnText','ta')+fld('Текст: решение','solText','ta');
+  if(TAB==='arch') return fld('Архетип 1 — название','a1n')+fld('Значение 1 (%)','a1v','range')+fld('Описание 1','a1d')+fld('Архетип 2 — название','a2n')+fld('Значение 2 (%)','a2v','range')+fld('Описание 2','a2d')+fld('Архетип 3 — название','a3n')+fld('Значение 3 (%)','a3v','range')+fld('Описание 3','a3d')+fld('Проблема когнитивной нагрузки','cogProb','ta')+fld('Аппаратное решение','cogSol','ta');
+  if(TAB==='comm') return fld('Профиль (подзаголовок)','commProfile')+fld('В ресурсе — вектор','commResVec')+fld('В ресурсе — действие','commResAct','ta')+fld('В автопилоте — вектор','commAutoVec')+fld('В автопилоте — действие','commAutoAct','ta');
+  if(TAB==='plan') return fld('Немедленно (Score Card)','plan0','ta')+fld('30 Дней (Якорная Ось)','plan30','ta')+fld('60 Дней (Внешний Тормоз)','plan60','ta');
+  return '';
+}
+function upS(k,v){D[k]=v;renderSlide();}
+function upN(k,v){D[k]=Number(v);const el=document.getElementById('rv_'+k);if(el)el.textContent=v;renderSlide();}
+function renderSlide(){
+  document.getElementById('si').innerHTML=SLIDES[SL](D);
+  document.getElementById('sctr').textContent=`${SL+1} / ${SLIDES.length}`;
+  document.getElementById('pbtn').disabled=SL===0;
+  document.getElementById('nbtn').disabled=SL===SLIDES.length-1;
+  document.querySelectorAll('.stab').forEach((el,i)=>el.classList.toggle('on',i===SL));
+}
+function renderForm(){
+  document.getElementById('form-body').innerHTML=formHTML();
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.t===TAB));
+}
+function go(dir){SL=Math.max(0,Math.min(SLIDES.length-1,SL+dir));renderSlide();}
+function setTab(t){TAB=t;renderForm();}
+function toggleSB(){
+  const sb=document.getElementById('sidebar'),ob=document.getElementById('open-btn');
+  sb.classList.toggle('hidden');ob.style.display=sb.classList.contains('hidden')?'block':'none';
+}
+function doExport(){
+  const b=new Blob([JSON.stringify(D,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`client_${(D.name||'profile').replace(/\s+/g,'_')}.json`;a.click();
+}
+function showModal(){document.getElementById('modal').classList.add('show');}
+function hideModal(){document.getElementById('modal').classList.remove('show');document.getElementById('jin').value='';}
+function doImport(){
+  try{const p=JSON.parse(document.getElementById('jin').value.trim());D={...DEF,...p};renderForm();renderSlide();hideModal();}
+  catch(e){alert('Ошибка: некорректный JSON.');}
+}
+function initTabs(){
+  document.getElementById('stabs').innerHTML=NAMES.map((nm,i)=>`<button class="stab${i===0?' on':''}" onclick="SL=${i};renderSlide()">${nm}</button>`).join('');
+}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
+});
+initTabs();renderForm();renderSlide();
+</script>
+</body>
+</html>
