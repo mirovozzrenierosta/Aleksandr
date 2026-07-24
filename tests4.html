@@ -422,6 +422,41 @@ const MATRICES = {
         signal:[[4,"ДА"],[8,"НЕТ"],[11,"ДА"]], minHits:2},
     ],
   },
+  findings: {
+    title: "Уточняющий блок — 4 матрицы",
+    type: "yesno",
+    questions: [
+      {n:1,  text:"Встречая друзей, с которыми давно не виделись, Вы целуете их, обнимаете, хлопаете по плечу?"},
+      {n:2,  text:"Когда Вы рассказываете о забавном происшествии, легко ли Вам подражать манерам и речи участников?"},
+      {n:3,  text:"Замечаете ли Вы, что пытаетесь сделать всё сразу?"},
+      {n:4,  text:"Выражение вашего лица бывает разным, а не остаётся всё время одинаковым?"},
+      {n:5,  text:"Можете ли Вы посмотреть на ситуацию с точки зрения другого человека?"},
+      {n:6,  text:"Вам бывает трудно понять, почему другой не может взглянуть на ситуацию с вашей точки зрения?"},
+      {n:7,  text:"Верно ли, что у молодёжи сегодня больше возможностей, чем было поколение назад?"},
+      {n:8,  text:"Принимая участие в голосовании, Вы изучаете кандидатов, а не голосуете постоянно за одну партию?"},
+      {n:9,  text:"Верно ли, что Вы часто замечаете, что ждёте, пока что-то произойдёт, а не начинаете действовать сами?"},
+      {n:10, text:"Когда Вы действительно хотите что-то сделать, чувствуете ли, что Ваши желания важнее несогласия других?"},
+      {n:11, text:"Пытаетесь ли Вы организовывать что-то новое там, где Вы живёте?"},
+    ],
+    clusters: [
+      {id:"kin",      label:"Кинестетик (VAKD)",       color:"#B23A3A",
+        signal:[[1,"ДА"]], minHits:1},
+      {id:"aud",      label:"Аудиал (VAKD)",            color:"#C9A227",
+        signal:[[2,"ДА"]], minHits:1},
+      {id:"vis",      label:"Визуал (VAKD)",            color:"#3E6B9C",
+        signal:[[3,"ДА"]], minHits:1},
+      {id:"orange",   label:"Оранжевый (Spiral)",       color:"#D2792E",
+        signal:[[5,"ДА"],[7,"ДА"],[8,"ДА"]], minHits:2},
+      {id:"rigid",    label:"Ригидность (Spiral)",      color:"#4A5C7A",
+        signal:[[6,"ДА"]], minHits:1},
+      {id:"reactive", label:"Реактивная мотивация",     color:"#6B6B6B",
+        signal:[[9,"ДА"]], minHits:1},
+      {id:"drive",    label:"Внутренний драйв",         color:"#5B8C5A",
+        signal:[[10,"ДА"]], minHits:1},
+      {id:"enterp",   label:"Предприниматель (Архетип)",color:"#7A3FA0",
+        signal:[[11,"ДА"]], minHits:1},
+    ],
+  },
 };
 
 // ════════════════════════════════════════════════════════════════
@@ -451,7 +486,7 @@ function buildMenu(){
   wrap.innerHTML = keys.map(key=>{
     const m = MATRICES[key];
     const catNames = m.type === "yesno"
-      ? "Ответы ДА / НЕТ · 15 вопросов"
+      ? `Ответы ДА / НЕТ · ${m.questions.length} вопросов`
       : Object.keys(m.cats).map(c=>m.cats[c].name).join(" · ");
     const totalQ = m.type === "yesno" ? m.questions.length : m.pairs.length;
     const mins = Math.max(1, Math.round(totalQ / 7));
@@ -655,6 +690,7 @@ function finishYNQuiz(){
     type: "yesno",
     answers,
     activeClusters,
+    totalQ: m.questions.length,
     lines: [`ДА: ${yesNums || "нет"}`]
   };
   renderResultsScreen(currentKey);
@@ -673,7 +709,7 @@ function renderResultsScreen(key){
   $("res-greet").textContent = (name ? `${name} · ` : "") + r.title;
 
   if(r.type === "yesno"){
-    $("res-title").innerHTML = "Ваши ответы — 15 вопросов";
+    $("res-title").innerHTML = `Ваши ответы — ${r.totalQ} вопросов`;
     $("bars").classList.add("hidden");
 
     // Show signal clusters if any activated
